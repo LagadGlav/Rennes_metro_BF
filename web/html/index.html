@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rennes Metro Schedules</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .right-panel {
+            flex: 1;
+            text-align: center;
+        }
+
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .search-container select,
+        .search-container button {
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .search-container button {
+            background: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-container button:hover {
+            background: #45a049;
+        }
+
+        .search-results {
+            margin-top: 20px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .search-results h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        .search-results p {
+            margin: 5px 0;
+        }
+
+        .right-panel img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Schedules for the Next Two Metros in Rennes</h1>
+    <div class="main-container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="search-container">
+                <select id="line" onchange="updateStations()" required>
+                    <option value="">Select a line</option>
+                    <option value="a">Line A</option>
+                    <option value="b">Line B</option>
+                </select>
+                <select id="station" required>
+                    <option value="">Select a station</option>
+                </select>
+                <select id="destination" required>
+                    <option value="">Select a terminus</option>
+                </select>
+                <button onclick="searchData()">Search</button>
+            </div>
+            <!-- Results Section -->
+            <div class="search-results" id="results-container" style="display: none;">
+                <h3>Results</h3>
+                <div id="arrets-container"></div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <img src="{{ url_for('static', filename='rennes_metro_map.png') }}" alt="Rennes Metro Map">
+        </div>
+    </div>
+
+    <script>
+const data = {{ data|tojson }};
+const stationSelect = document.getElementById('station');
+const destinationSelect = document.getElementById('destination');
+
+document.getElementById('line').addEventListener('change', updateStations);
+stationSelect.addEventListener('change', updateDestinations);
+
+function updateStations() {
+    const line = document.getElementById('line').value;
+    const uniqueStations = [...new Set(data.filter(record => record.nomcourtligne === line).map(record => record.nomarret))];
+
+    stationSelect.innerHTML = '<option value="">Select a station</option>';
+    uniqueStations.forEach(station => {
+        const option = document.createElement('option');
+        option.value = station;
+        option.textContent = station;
+        stationSelect.appendChild(option);
+    });
+
+    // Update destinations based on selected station
+    updateDestinations();
+}
+
+function updateDestinations() {
+    const line = document.getElementById('line').value;
+    const selectedStation = stationSelect.value;
+    const terminusOptions = {
+        'a': ['La Poterie', 'J.F. Kennedy'],
+        'b': ['Cesson - Viasilva', 'Saint-Jacques - Gaîté']
+    }; // Definition of terminus' station in order to make sure there is not any confusion, particularly for the station Gares and Sainte-Anne due to the crossing of thee two lines on these station.
+
+    const uniqueDestinations = [...new Set(data.filter(record => record.nomcourtligne === line && terminusOptions[line].includes(record.destination)).map(record => record.destination))];
+
+    destinationSelect.innerHTML = '<option value="">Select a terminus</option>';
+    uniqueDestinations.forEach(destination => {
+        const option = document.createElement('option');
+        option.value = destination;
+        option.textContent = destination;
+        destinationSelect.appendChild(option);
+    });
+}
+
+function searchData() {
+    const line = document.getElementById('line').value;
+    const station = stationSelect.value;
+    const destination = destinationSelect.value;
+
+    if (!line || !station || !destination) {
+        alert('Please select a line, station, and terminus.');
+        return;
+    }
+
+    const results = data.filter(record => 
+        record.nomcourtligne === line && 
+        record.nomarret === station && 
+        record.destination === destination
+    );
+
+    const container = document.getElementById('arrets-container');
+    container.innerHTML = '';
+    results.forEach(record => {
+        const localTime1 = new Date(record.departfirsttrain);
+        const localTime2 = new Date(record.departsecondtrain);
+        const nextMetroTime = new Date(localTime1.getTime() - 60 * 60 * 1000); // Translation from UTC+0 to UTC+1 (current time in Rennes)
+        const followingMetroTime = new Date(localTime2.getTime() - 60 * 60 * 1000); // UTC+1
+
+        const arretDiv = document.createElement('div');
+        arretDiv.className = 'arret ligne-' + record.nomcourtligne;
+        arretDiv.innerHTML =  `
+            <h2>${record.nomarret}</h2>
+            <p><strong>Terminus:</strong> ${record.destination}</p>
+            <p><strong>Next metro:</strong> ${nextMetroTime.toLocaleTimeString()}</p>
+            <p><strong>Following metro:</strong> ${followingMetroTime.toLocaleTimeString()}</p>
+        `;
+        container.appendChild(arretDiv);
+    });
+    document.getElementById('results-container').style.display = 'block';
+}
+    </script>
+</body>
+</html>
+
