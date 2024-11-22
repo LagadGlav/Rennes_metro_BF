@@ -17,20 +17,20 @@ jobs:
       uses: google-github-actions/setup-gcloud@v0.2.0
       with:
         service_account_key: ${{ secrets.GCP_SA_KEY }}
-        project_id: projectas-442512 
+        project_id: YOUR_PROJECT_ID
 
     - name: Authenticate Docker to Docker Hub
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
     - name: Build and push API image
       run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api:latest ./api
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
+        docker build -t lagadglav/api:latest Rennes_metro_project/api
+        docker push lagadglav/api:latest
 
     - name: Build and push Web image
       run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/web:latest ./web
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/web:latest
+        docker build -t lagadglav/web:latest Rennes_metro_project/web
+        docker push lagadglav/web:latest
 
     - name: Pull MySQL image
       run: docker pull mysql:5.7
