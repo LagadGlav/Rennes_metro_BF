@@ -35,9 +35,13 @@ jobs:
     - name: Pull MySQL image
       run: docker pull mysql:5.7
 
-    - name: Deploy to GKE
+    - name: Configure kubeconfig 
+      run: | 
+       echo "${{ secrets.KUBECONFIG }}" | base64 --decode > $HOME/.kube/config 
       env:
-        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+       KUBECONFIG: $HOME/.kube/config
+
+    - name: Deploy to GKE
       run: |
         kubectl apply -f k8s/mysql-deployment.yaml
         kubectl apply -f k8s/mysql-service.yaml
@@ -45,3 +49,5 @@ jobs:
         kubectl apply -f k8s/api-service.yaml
         kubectl apply -f k8s/web-deployment.yaml
         kubectl apply -f k8s/web-service.yaml
+    env:
+     KUBECONFIG: $HOME/.kube/config
