@@ -37,10 +37,12 @@ jobs:
 
     - name: Configure kubeconfig 
       run: | 
-       mkdir -p $HOME/.kube
+       mkdir -p /home/runner/.kube
        echo "${{ secrets.KUBECONFIG }}" | base64 --decode > $HOME/.kube/config 
+       kubectl config view
+       kubectl get nodes
       env:
-       KUBECONFIG: $HOME/.kube/config
+       KUBECONFIG: /home/runner/.kube/config
 
     - name: Deploy to GKE
       run: |
@@ -51,4 +53,4 @@ jobs:
         kubectl apply -f k8s/web-deployment.yaml
         kubectl apply -f k8s/web-service.yaml
     env:
-     KUBECONFIG: $HOME/.kube/config
+     KUBECONFIG: /home/runner/.kube/config
