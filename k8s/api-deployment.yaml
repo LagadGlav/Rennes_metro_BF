@@ -17,3 +17,19 @@ spec:
           image: lagadglav/api:latest
           ports:
             - containerPort: 80
+          env:
+            - name: DB_HOST
+              value: mysql-service
+            - name: DB_DATABASE
+              value: metro
+            - name: DB_USER
+              value: root
+            - name: DB_PASSWORD
+              value: example
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
