@@ -14,9 +14,18 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: lagadglav/mysql:latest
+          image: mysql:5.7
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: example
+            - name: MYSQL_DATABASE
+              value: metro
           ports:
             - containerPort: 3306
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1"
+            limits:
+              memory: "2Gi"
+              cpu: "2"
