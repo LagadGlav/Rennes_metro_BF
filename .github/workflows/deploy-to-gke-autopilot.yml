@@ -1,0 +1,47 @@
+name: Deploy to GKE Autopilot
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.0
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: projectas-442512 
+
+    - name: Authenticate Docker to Docker Hub
+      run: echo "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
+    - name: Build and push API image
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api:latest ./api
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
+
+    - name: Build and push Web image
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/web:latest ./web
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/web:latest
+
+    - name: Pull MySQL image
+      run: docker pull mysql:5.7
+
+    - name: Deploy to GKE
+      env:
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+      run: |
+        kubectl apply -f k8s/mysql-deployment.yaml
+        kubectl apply -f k8s/mysql-service.yaml
+        kubectl apply -f k8s/api-deployment.yaml
+        kubectl apply -f k8s/api-service.yaml
+        kubectl apply -f k8s/web-deployment.yaml
+        kubectl apply -f k8s/web-service.yaml
