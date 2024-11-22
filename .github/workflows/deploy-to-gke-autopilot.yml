@@ -20,8 +20,7 @@ jobs:
         project_id: projectas-442512
 
     - name: Authenticate Docker to Docker Hub
-      run: |
-        echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin || exit 1
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin || exit 1
 
     - name: Build and push API image
       run: |
@@ -36,23 +35,22 @@ jobs:
     - name: Pull MySQL image
       run: docker pull mysql:5.7
 
-    - name: Configure kubeconfig
+    - name: Set up kubeconfig
       run: |
         mkdir -p /home/runner/.kube
         echo "${{ secrets.KUBECONFIG }}" | base64 --decode > /home/runner/.kube/config
-      env:
-        KUBECONFIG: /home/runner/.kube/config
 
     - name: Authenticate with GCP
-      run: gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY }}
+      uses: google-github-actions/auth@v0.2.0
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
 
     - name: Configure kubectl
-      run: |
-        gcloud container clusters get-credentials clusteras --zone us-central1 --project projectas-442512
-        kubectl config view
-        kubectl get nodes
-      env:
-        KUBECONFIG: /home/runner/.kube/config
+      uses: google-github-actions/get-gke-credentials@v0.2.0
+      with:
+        cluster_name: clusteras
+        location: us-central1
+        project_id: projectas-442512
 
     - name: Deploy to GKE
       run: |
