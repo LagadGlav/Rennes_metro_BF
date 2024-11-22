@@ -19,19 +19,23 @@ jobs:
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         project_id: projectas-442512
 
+    - name: Add Google Cloud SDK Repository
+      run: |
+        sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list'
+        sudo apt-get update
+
     - name: Install gke-gcloud-auth-plugin
       run: |
-        sudo apt-get update
         sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
 
     - name: Authenticate Docker to Docker Hub
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
     - name: Pull API image
-      run: docker pull lagadglav/api:latest
+      run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
 
     - name: Pull Web image
-      run: docker pull lagadglav/web:latest
+      run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/web:latest
 
     - name: Pull MySQL image
       run: docker pull mysql:5.7
