@@ -25,13 +25,13 @@ jobs:
 
     - name: Build and push API image
       run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api:latest ./Rennes_metro_project/api
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
+        docker build -t lagadglav/api:latest ./Rennes_metro_project/api
+        docker push lagadglav/api:latest
 
     - name: Build and push Web image
       run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/web:latest ./Rennes_metro_project/web
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/web:latest
+        docker build -t lagadglav/web:latest ./Rennes_metro_project/web
+        docker push lagadglav/web:latest
 
     - name: Pull MySQL image
       run: docker pull mysql:5.7
