@@ -40,11 +40,6 @@ jobs:
         mkdir -p /home/runner/.kube
         echo "${{ secrets.KUBECONFIG }}" | base64 --decode > /home/runner/.kube/config
 
-    - name: Authenticate with GCP
-      uses: google-github-actions/auth@v0.2.0
-      with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
-
     - name: Configure kubectl
       uses: google-github-actions/get-gke-credentials@v0.2.0
       with:
