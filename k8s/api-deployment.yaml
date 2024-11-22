@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: api-deployment
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: api
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: lagadglav/api:latest
+          image: ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
           ports:
             - containerPort: 80
           env:
