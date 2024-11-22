@@ -19,6 +19,14 @@ jobs:
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         project_id: projectas-442512
         export_default_credentials: true
+        
+    - name: Install gke-gcloud-auth-plugin 
+      run: |
+       sudo apt-get update 
+       sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin 
+
+    - name: Verif
+      run: gke-gcloud-auth_plugin --version
 
     - name: Authenticate Docker to Docker Hub
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin || exit 1
@@ -34,12 +42,7 @@ jobs:
         docker push lagadglav/web:latest
 
     - name: Pull MySQL image
-      run: docker pull mysql:5.7
-
-    - name: Install gke-gcloud-auth-plugin 
-      run: |
-       sudo apt-get update 
-       sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin  
+      run: docker pull mysql:5.7 
        
     - name: Set up kubeconfig
       run: |
