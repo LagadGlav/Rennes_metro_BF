@@ -20,13 +20,18 @@ jobs:
         project_id: projectas-442512
 
     - name: Authenticate Docker to Docker Hub
-      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      run: |
+        echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin || exit 1
 
-    - name: Pull API image
-      run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
+    - name: Build and push API image
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api:latest ./Rennes_metro_project/api
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
 
-    - name: Pull Web image
-      run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/web:latest
+    - name: Build and push Web image
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/web:latest ./Rennes_metro_project/web
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/web:latest
 
     - name: Pull MySQL image
       run: docker pull mysql:5.7
@@ -43,7 +48,7 @@ jobs:
 
     - name: Configure kubectl
       run: |
-        gcloud container clusters get-credentials YOUR_CLUSTER_NAME --zone YOUR_ZONE --project projectas-442512
+        gcloud container clusters get-credentials clusteras --zone us-central1 --project projectas-442512
         kubectl config view
         kubectl get nodes
       env:
