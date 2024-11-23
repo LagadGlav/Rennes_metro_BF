@@ -28,7 +28,7 @@ jobs:
         context: ./Rennes_metro_project/web
         file: ./web/Dockerfile
         push: true
-        tags: your-dockerhub-username/web:latest
+        tags: lagadglav/web:latest
 
     - name: Build and push api service
       uses: docker/build-push-action@v2
