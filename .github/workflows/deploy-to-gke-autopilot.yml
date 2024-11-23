@@ -35,14 +35,13 @@ jobs:
 
     - name: Pull MySQL image
       run: docker pull mysql:5.7
-      
-    - name: Set up kubectl
-      uses: google-github-actions/setup-gcloud@v0
-      with:
-        project_id: projectas-442512
-        zone: us-central1             
-        cluster: clusteras      
-   
+
+    - name: Configure kubeconfig
+      run: |
+        mkdir -p /home/runner/.kube
+        echo "${{ secrets.KUBECONFIG}}" > /home/runner/.kube/config
+        kubectl config use-context gke_projectas-442512_us-central1_clusteras
+
     - name: Deploy to GKE
       run: |
         kubectl apply -f ./k8s/mysql-deployment.yaml
@@ -51,4 +50,5 @@ jobs:
         kubectl apply -f ./k8s/api-service.yaml
         kubectl apply -f ./k8s/web-deployment.yaml
         kubectl apply -f ./k8s/web-service.yaml
-
+      env:
+        KUBECONFIG: /home/runner/.kube/config
