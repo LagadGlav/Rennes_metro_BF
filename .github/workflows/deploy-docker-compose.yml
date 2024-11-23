@@ -26,7 +26,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: ./Rennes_metro_project/web
-        file: ./web/Dockerfile
+        file: ./Rennes_metro_project/web/Dockerfile
         push: true
         tags: lagadglav/web:latest
 
