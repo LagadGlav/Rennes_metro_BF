@@ -16,7 +16,7 @@ spec:
         - name: api
           image: ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           env:
             - name: DB_HOST
               value: mysql-service
