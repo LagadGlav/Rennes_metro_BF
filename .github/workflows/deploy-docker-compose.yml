@@ -46,7 +46,7 @@ jobs:
       run: | 
        echo "${SSH_KEY}" > private_key 
        chmod 600 private_key 
-       sudo ssh -i private_key -o StrictHostKeyChecking=no $USERNAME@$HOST << 'EOF' 
+       sudo ssh -t -i private_key -o StrictHostKeyChecking=no $USERNAME@$HOST << 'EOF' 
         sudo apt-get update
         sudo apt-get install -y docker-compose
         sudo docker-compose -f ./Rennes_metro_project/docker-compose.yml pull 
