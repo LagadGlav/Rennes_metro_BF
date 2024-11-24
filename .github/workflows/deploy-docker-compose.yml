@@ -38,17 +38,6 @@ jobs:
         push: true
         tags: lagadglav/api:latest
 
-    - name: Deploy to Remote Server 
-      env: 
-        HOST: ${{ secrets.REMOTE_HOST }} 
-        USERNAME: ${{ secrets.REMOTE_USER }} 
-        SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }} 
-      run: | 
-       echo "${SSH_KEY}" > private_key 
-       chmod 600 private_key 
-       sudo ssh -t -i private_key -o StrictHostKeyChecking=no $USERNAME@$HOST << 'EOF' 
-        sudo apt-get update
-        sudo apt-get install -y docker-compose
-        sudo docker-compose -f ./Rennes_metro_project/docker-compose.yml pull 
+    - name: Deploy to docker-compose 
+      run : |
         sudo docker-compose -f ./Rennes_metro_project/docker-compose.yml up -d 
-       EOF 
