@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
+          image: lagadglav/api:latest
           ports:
             - containerPort: 8080
           env:
