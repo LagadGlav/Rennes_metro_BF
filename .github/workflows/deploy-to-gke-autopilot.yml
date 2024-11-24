@@ -44,7 +44,8 @@ jobs:
     - name: Configure kubeconfig
       run: |
         mkdir -p /home/runner/.kube
-        echo "${{ secrets.KUBECONFIG}}" > /home/runner/.kube/config
+        echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 --decode > /home/runner/.kube/config
+        gcloud container clusters get-credentials clusteras --zone us-central1 --project projectas-442512
         kubectl config use-context gke_projectas-442512_us-central1_clusteras
 
     - name: Deploy to GKE
