@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ${{ secrets.DOCKERHUB_USERNAME }}/web:latest
+          image: lagadglav/web:latest
           ports:
             - containerPort: 80
           resources:
